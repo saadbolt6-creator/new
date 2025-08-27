@@ -22,27 +22,26 @@ export class EmailService {
     phone?: string;
   }): Promise<{ success: boolean; error?: string }> {
     try {
-      // Template parameters for admin notification
+      // Template parameters for admin notification (matches "Contact Us" template)
       const adminTemplateParams = {
         from_name: formData.name,
         from_email: formData.email,
+        phone: formData.phone || 'Not provided',
         department: formData.department,
         message: formData.message,
-        phone: formData.phone || 'Not provided',
       };
 
-      // Template parameters for user auto-reply
+      // Template parameters for user auto-reply (matches "Auto-reply" template)
       const userTemplateParams = {
         to_name: formData.name,
-        to_email: formData.email,
         user_message: formData.message,
         department: formData.department,
+        to_email: formData.email, // Add this for EmailJS routing
       };
 
       console.log('Sending admin notification with params:', adminTemplateParams);
-      console.log('Sending user auto-reply with params:', userTemplateParams);
 
-      // Send admin notification
+      // Send admin notification first
       const adminResponse = await emailjs.send(
         EMAILJS_SERVICE_ID,
         EMAILJS_TEMPLATE_ID_CONTACT,
@@ -50,6 +49,8 @@ export class EmailService {
       );
 
       console.log('Admin notification sent successfully:', adminResponse);
+
+      console.log('Sending user auto-reply with params:', userTemplateParams);
 
       // Send user auto-reply
       const userResponse = await emailjs.send(
